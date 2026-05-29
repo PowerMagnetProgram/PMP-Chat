@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isMessageParticipant() {
+      return signedIn()
+        && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId);
+    }
+
+    function isNewMessageParticipant() {
+      return signedIn()
+        && (request.auth.uid == request.resource.data.senderId || request.auth.uid == request.resource.data.receiverId);
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.email == request.auth.token.email;
+      allow update: if isOwner(userId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email;
+      allow delete: if false;
+    }
+
+    match /messages/{messageId} {
+      allow create: if isNewMessageParticipant()
+        && request.auth.uid == request.resource.data.senderId
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 800
+        && request.resource.data.senderId is string
+        && request.resource.data.receiverId is string
+        && request.resource.data.senderId != request.resource.data.receiverId;
+      allow read: if isMessageParticipant();
+      allow update: if signedIn()
+        && request.auth.uid == resource.data.receiverId
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['read', 'readAt'])
+        && request.resource.data.read == true;
+      allow delete: if false;
+    }
+  }
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PulseChat dashboard.">
+  <title>PulseChat | Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="home-page">
+  <main class="app-shell">
+    <aside class="sidebar">
+      <a class="app-logo" href="home.html" aria-label="PulseChat home">
+        <span>P</span>
+        <strong>PulseChat</strong>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="active" href="home.html"><i class="fa-solid fa-table-columns"></i>Dashboard</a>
+        <a href="people.html"><i class="fa-solid fa-users"></i>People</a>
+        <a href="profile.html"><i class="fa-solid fa-circle-user"></i>Profile</a>
+      </nav>
+      <button class="btn btn-ghost logout-button" type="button"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
+    </aside>
+
+    <section class="content-area">
+      <section class="mobile-social-home" aria-label="Mobile dashboard header">
+        <div class="mobile-red-header">
+          <a class="mobile-back" href="home.html" aria-label="Dashboard"><i class="fa-solid fa-arrow-left"></i></a>
+          <div class="avatar mobile-header-avatar" id="mobileHeaderAvatar">P</div>
+          <div class="mobile-header-copy">
+            <strong id="mobileHeaderName">Loading...</strong>
+            <span id="mobileHeaderEmail">Loading...</span>
+          </div>
+          <button class="mobile-header-logout logout-button" type="button" aria-label="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </section>
+
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Dashboard</p>
+          <h1>Recent chats</h1>
+        </div>
+        <a class="btn btn-primary" href="people.html"><i class="fa-solid fa-user-magnifying-glass"></i>Find people</a>
+      </header>
+
+      <section class="welcome-strip">
+        <div>
+          <p class="muted">Signed in as</p>
+          <h2 id="currentUserName">Loading...</h2>
+        </div>
+        <span class="status-pill online"><i class="fa-solid fa-wifi"></i>Online</span>
+      </section>
+
+      <section class="section-block" aria-labelledby="recent-title">
+        <div class="section-heading">
+          <h2 id="recent-title">Conversations</h2>
+          <p class="muted">People you have recently messaged.</p>
+        </div>
+        <div id="recentChats" class="chat-list" aria-live="polite">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="js/home.js"></script>
+</body>
+</html>

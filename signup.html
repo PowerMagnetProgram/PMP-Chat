@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create a PulseChat account.">
+  <title>PulseChat | Signup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell signup-shell">
+    <section class="auth-panel auth-hero">
+      <p class="eyebrow">Join the conversation</p>
+      <h1>Build your profile and start messaging.</h1>
+      <p>Your account is stored securely with Firebase Authentication and your profile lives in Cloud Firestore.</p>
+      <div class="hero-stats">
+        <span><i class="fa-solid fa-bolt"></i><strong>Fast</strong> email signup</span>
+        <span><i class="fa-solid fa-signal"></i><strong>Synced</strong> online presence</span>
+      </div>
+    </section>
+
+    <section class="auth-panel auth-card" aria-labelledby="signup-title">
+      <div class="brand-mark"><i class="fa-solid fa-comment-dots"></i></div>
+      <h2 id="signup-title">Create account</h2>
+      <p class="muted">Tell people a little about you.</p>
+
+      <div class="alert hidden" id="authMessage" role="alert"></div>
+
+      <form id="signupForm" class="form-stack">
+        <label for="fullname">Full name</label>
+        <div class="input-icon">
+          <i class="fa-solid fa-user"></i>
+          <input id="fullname" name="fullname" type="text" autocomplete="name" placeholder="Ada Lovelace" required>
+        </div>
+
+        <label for="email">Email</label>
+        <div class="input-icon">
+          <i class="fa-solid fa-envelope"></i>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        </div>
+
+        <label for="password">Password</label>
+        <div class="input-icon">
+          <i class="fa-solid fa-lock"></i>
+          <input id="password" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required>
+        </div>
+
+        <label for="bio">Bio</label>
+        <div class="input-icon textarea-icon">
+          <i class="fa-solid fa-circle-info"></i>
+          <textarea id="bio" name="bio" rows="4" maxlength="180" placeholder="Designer, developer, night-owl thinker..." required></textarea>
+        </div>
+
+        <button class="btn btn-primary" type="submit" id="signupButton">
+          <i class="fa-solid fa-user-plus"></i>
+          <span class="btn-label">Create account</span>
+          <span class="loader hidden" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="index.html">Login</a></p>
+    </section>
+  </main>
+
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>

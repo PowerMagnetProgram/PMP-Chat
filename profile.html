@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PulseChat profile.">
+  <title>PulseChat | Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <a class="app-logo" href="home.html" aria-label="PulseChat home">
+        <span>P</span>
+        <strong>PulseChat</strong>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="home.html"><i class="fa-solid fa-table-columns"></i>Dashboard</a>
+        <a href="people.html"><i class="fa-solid fa-users"></i>People</a>
+        <a class="active" href="profile.html"><i class="fa-solid fa-circle-user"></i>Profile</a>
+      </nav>
+      <button class="btn btn-ghost logout-button" type="button"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
+    </aside>
+
+    <section class="content-area">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Account</p>
+          <h1>Profile</h1>
+        </div>
+      </header>
+
+      <section class="profile-card" aria-live="polite">
+        <div class="avatar xl" id="profileAvatar">P</div>
+        <div class="profile-copy">
+          <h2 id="profileName">Loading...</h2>
+          <p id="profileEmail" class="muted">Loading...</p>
+          <p id="profileBio">Loading profile...</p>
+        </div>
+        <button id="editProfileButton" class="btn btn-primary" type="button"><i class="fa-solid fa-pen-to-square"></i>Edit profile</button>
+      </section>
+
+      <form id="profileForm" class="edit-panel hidden">
+        <div class="alert hidden" id="profileMessage" role="alert"></div>
+        <label for="fullname">Full name</label>
+        <div class="input-icon">
+          <i class="fa-solid fa-user"></i>
+          <input id="fullname" name="fullname" type="text" required>
+        </div>
+
+        <label for="bio">Bio</label>
+        <div class="input-icon textarea-icon">
+          <i class="fa-solid fa-circle-info"></i>
+          <textarea id="bio" name="bio" rows="4" maxlength="180" required></textarea>
+        </div>
+
+        <div class="button-row">
+          <button class="btn btn-primary" type="submit" id="saveProfileButton">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span class="btn-label">Save changes</span>
+            <span class="loader hidden" aria-hidden="true"></span>
+          </button>
+          <button class="btn btn-ghost" type="button" id="cancelEditButton"><i class="fa-solid fa-xmark"></i>Cancel</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script type="module" src="js/profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Find people on PulseChat.">
+  <title>PulseChat | People</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="people-page">
+  <main class="app-shell">
+    <aside class="sidebar">
+      <a class="app-logo" href="home.html" aria-label="PulseChat home">
+        <span>P</span>
+        <strong>PulseChat</strong>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="home.html"><i class="fa-solid fa-table-columns"></i>Dashboard</a>
+        <a class="active" href="people.html"><i class="fa-solid fa-users"></i>People</a>
+        <a href="profile.html"><i class="fa-solid fa-circle-user"></i>Profile</a>
+      </nav>
+      <button class="btn btn-ghost logout-button" type="button"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
+    </aside>
+
+    <section class="content-area">
+      <section class="mobile-social-home" aria-label="Mobile people header">
+        <div class="mobile-red-header">
+          <a class="mobile-back" href="home.html" aria-label="Back to dashboard"><i class="fa-solid fa-arrow-left"></i></a>
+          <div class="avatar mobile-header-avatar" id="mobileHeaderAvatar">P</div>
+          <div class="mobile-header-copy">
+            <strong id="mobileHeaderName">Loading...</strong>
+            <span id="mobileHeaderEmail">Loading...</span>
+          </div>
+          <button class="mobile-header-logout logout-button" type="button" aria-label="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </section>
+
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Directory</p>
+          <h1>People</h1>
+        </div>
+        <a class="btn btn-ghost" href="home.html"><i class="fa-solid fa-arrow-left"></i>Back home</a>
+      </header>
+
+      <div class="search-wrap">
+        <div class="input-icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" type="search" placeholder="Search by name, email, or bio" autocomplete="off">
+        </div>
+      </div>
+
+      <section id="peopleList" class="people-grid" aria-live="polite">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="js/people.js"></script>
+</body>
+</html>

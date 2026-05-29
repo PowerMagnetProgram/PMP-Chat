@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Realtime private chat powered by Firebase.">
+  <title>PulseChat | Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-panel auth-hero">
+      <p class="eyebrow">Realtime messaging</p>
+      <h1>Chat that keeps up with the room.</h1>
+      <p>Sign in to continue your private conversations, see who is online, and message people instantly.</p>
+      <div class="hero-stats">
+        <span><i class="fa-solid fa-tower-broadcast"></i><strong>Live</strong> Firestore sync</span>
+        <span><i class="fa-solid fa-lock"></i><strong>Private</strong> one-to-one chats</span>
+      </div>
+    </section>
+
+    <section class="auth-panel auth-card" aria-labelledby="login-title">
+      <div class="brand-mark"><i class="fa-solid fa-comment-dots"></i></div>
+      <h2 id="login-title">Welcome back</h2>
+      <p class="muted">Login with your email and password.</p>
+
+      <div class="alert hidden" id="authMessage" role="alert"></div>
+
+      <form id="loginForm" class="form-stack">
+        <label for="email">Email</label>
+        <div class="input-icon">
+          <i class="fa-solid fa-envelope"></i>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        </div>
+
+        <label for="password">Password</label>
+        <div class="input-icon">
+          <i class="fa-solid fa-lock"></i>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+        </div>
+
+        <button class="btn btn-primary" type="submit" id="loginButton">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span class="btn-label">Login</span>
+          <span class="loader hidden" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <p class="auth-switch">New here? <a href="signup.html">Create an account</a></p>
+    </section>
+  </main>
+
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>

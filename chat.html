@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Private realtime chat.">
+  <title>PulseChat | Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="chat-page">
+  <main class="chat-shell">
+    <header class="chat-header">
+      <a class="icon-link" href="people.html" aria-label="Back to people"><i class="fa-solid fa-arrow-left"></i></a>
+      <div class="avatar" id="receiverAvatar">?</div>
+      <div class="chat-peer">
+        <h1 id="receiverName">Loading...</h1>
+        <p id="receiverStatus" class="muted">Checking status...</p>
+      </div>
+      <button class="btn btn-ghost logout-button" type="button"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
+    </header>
+
+    <section id="messagesList" class="messages-list" aria-live="polite">
+      <div class="chat-loader">
+        <span class="loader"></span>
+        Loading messages....
+      </div>
+    </section>
+
+    <form id="messageForm" class="message-composer">
+      <input id="messageInput" type="text" autocomplete="off" maxlength="800" placeholder="Write a message..." required>
+      <button class="btn btn-primary" type="submit" id="sendButton"><i class="fa-solid fa-paper-plane"></i>Send</button>
+    </form>
+  </main>
+
+  <script type="module" src="js/chat.js"></script> 
+</body>
+</html>
