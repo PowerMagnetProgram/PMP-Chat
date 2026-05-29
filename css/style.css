@@ -725,7 +725,7 @@ textarea:focus {
 
 .message-bubble.sent {
   align-self: flex-end;
-  background:#06881e;
+  background:red;
   color: #ffffff;
 }
 
