@@ -1,11 +1,5 @@
-import { auth, db, persistenceReady, serverTimestamp } from "./firebase.js";
+import { supabase } from "./supabase.js";
 import { listenForAuth, renderIcons, setButtonLoading, showMessage } from "./guard.js";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 listenForAuth({ requireAuth: false, redirectIfFound: "home.html" });
 renderIcons();
@@ -20,13 +14,13 @@ loginForm?.addEventListener("submit", async (event) => {
   setButtonLoading(button, true);
 
   try {
-    await persistenceReady;
     const form = new FormData(loginForm);
-    await signInWithEmailAndPassword(
-      auth,
-      form.get("email").trim(),
-      form.get("password"),
-    );
+    const { error } = await supabase.auth.signInWithPassword({
+      email: form.get("email").trim(),
+      password: form.get("password"),
+    });
+
+    if (error) throw error;
     window.location.href = "home.html";
   } catch (error) {
     showMessage(authMessage, friendlyAuthError(error));
@@ -41,23 +35,35 @@ signupForm?.addEventListener("submit", async (event) => {
   setButtonLoading(button, true);
 
   try {
-    await persistenceReady;
     const form = new FormData(signupForm);
     const fullname = form.get("fullname").trim();
     const email = form.get("email").trim();
     const bio = form.get("bio").trim();
-    const credential = await createUserWithEmailAndPassword(auth, email, form.get("password"));
 
-    await updateProfile(credential.user, { displayName: fullname });
-    await setDoc(doc(db, "users", credential.user.uid), {
-      uid: credential.user.uid,
-      fullname,
+    const { data, error } = await supabase.auth.signUp({
       email,
-      bio,
-      photoURL: "",
-      createdAt: serverTimestamp(),
-      online: true,
+      password: form.get("password"),
+      options: {
+        data: {
+          fullname,
+          bio,
+        },
+      },
     });
+
+    if (error) throw error;
+
+    if (data.user && data.session) {
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: data.user.id,
+        fullname,
+        email,
+        bio,
+        photo_url: "",
+        online: true,
+      });
+      if (profileError) throw profileError;
+    }
 
     window.location.href = "home.html";
   } catch (error) {
@@ -68,11 +74,9 @@ signupForm?.addEventListener("submit", async (event) => {
 });
 
 function friendlyAuthError(error) {
-  const messages = {
-    "auth/email-already-in-use": "That email already has an account.",
-    "auth/invalid-email": "Please enter a valid email address.",
-    "auth/invalid-credential": "Email or password is incorrect.",
-    "auth/weak-password": "Password should be at least 6 characters.",
-  };
-  return messages[error.code] || "Something went wrong. Please try again.";
+  const message = error.message || "";
+  if (message.toLowerCase().includes("already")) return "That email already has an account.";
+  if (message.toLowerCase().includes("invalid")) return "Email or password is incorrect.";
+  if (message.toLowerCase().includes("password")) return "Password should be at least 6 characters.";
+  return message || "Something went wrong. Please try again.";
 }

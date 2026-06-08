@@ -31,8 +31,34 @@
     </section>
 
     <form id="messageForm" class="message-composer">
-      <input id="messageInput" type="text" autocomplete="off" maxlength="800" placeholder="Write a message..." required>
-      <button class="btn btn-primary" type="submit" id="sendButton"><i class="fa-solid fa-paper-plane"></i>Send</button>
+      <div id="replyComposer" class="reply-composer hidden">
+        <div>
+          <span>Replying to</span>
+          <strong id="replyAuthor">Message</strong>
+          <p id="replyText">Selected message</p>
+        </div>
+        <button type="button" id="cancelReplyButton" aria-label="Cancel reply"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="recordingPanel" class="recording-panel hidden" aria-live="polite">
+        <div class="recording-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div>
+          <strong>Recording voice note</strong>
+          <p id="recordingTimer">0:00</p>
+        </div>
+      </div>
+
+      <div class="composer-row">
+        <label class="composer-tool" for="imageInput" aria-label="Send image">
+          <i class="fa-solid fa-image"></i>
+          <input id="imageInput" type="file" accept="image/*">
+        </label>
+        <input id="messageInput" type="text" autocomplete="off" maxlength="800" placeholder="Write a message...">
+        <button class="composer-tool" type="button" id="recordButton" aria-label="Record voice note"><i class="fa-solid fa-microphone"></i></button>
+        <button class="btn btn-primary" type="submit" id="sendButton"><i class="fa-solid fa-paper-plane"></i>Send</button>
+      </div>
     </form>
   </main>
 

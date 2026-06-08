@@ -1,12 +1,6 @@
-import { db } from "./firebase.js";
+import { supabase } from "./supabase.js";
 import {
-  collection,
-  getDocs,
-  onSnapshot,
-  query,
-  where,
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import {
+  avatarHtml,
   emptyState,
   escapeHtml,
   formatTime,
@@ -29,55 +23,50 @@ renderIcons();
 listenForAuth({
   requireAuth: true,
   async onReady(user) {
-    const profile = await getUserProfile(user.uid);
+    const profile = await getUserProfile(user.id);
     currentUserName.textContent = profile?.fullname || user.email;
-    mobileHeaderAvatar.textContent = initials(profile?.fullname || user.email || "User");
-    mobileHeaderName.textContent = profile?.fullname || "PulseChat";
-    mobileHeaderEmail.textContent = profile?.email || user.email || "Online";
-    subscribeToRecentChats(user.uid);
+    if (mobileHeaderAvatar) mobileHeaderAvatar.textContent = initials(profile?.fullname || user.email || "User");
+    if (mobileHeaderName) mobileHeaderName.textContent = profile?.fullname || "PulseChat";
+    if (mobileHeaderEmail) mobileHeaderEmail.textContent = profile?.email || user.email || "Online";
+    subscribeToRecentChats(user.id);
   },
 });
 
-function subscribeToRecentChats(uid) {
-  const sentQuery = query(
-    collection(db, "messages"),
-    where("senderId", "==", uid),
-  );
-  const receivedQuery = query(
-    collection(db, "messages"),
-    where("receiverId", "==", uid),
-  );
+async function subscribeToRecentChats(uid) {
+  await renderRecentFromDatabase(uid);
 
-  const cache = { sent: [], received: [] };
-  const render = () => renderRecent(uid, [...cache.sent, ...cache.received]);
-  const showError = (error) => {
+  supabase
+    .channel(`dashboard-messages-${uid}`)
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "messages",
+      filter: `sender_id=eq.${uid}`,
+    }, () => renderRecentFromDatabase(uid))
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "messages",
+      filter: `receiver_id=eq.${uid}`,
+    }, () => renderRecentFromDatabase(uid))
+    .subscribe();
+}
+
+async function renderRecentFromDatabase(uid) {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .or(`sender_id.eq.${uid},receiver_id.eq.${uid}`)
+    .order("created_at", { ascending: false });
+
+  if (error) {
     console.error("Unable to load recent messages", error);
-    recentChats.innerHTML = emptyState(
-      "Recent messages could not load",
-      "Check that your Firestore rules are published and refresh this page.",
-    );
+    recentChats.innerHTML = emptyState("Recent messages could not load", "Check your Supabase table policies and refresh this page.");
     renderIcons();
-  };
+    return;
+  }
 
-  const loadingTimer = window.setTimeout(() => {
-    recentChats.innerHTML = emptyState(
-      "Still checking messages",
-      "Send a test message from another account, then refresh this dashboard.",
-    );
-    renderIcons();
-  }, 8000);
-
-  onSnapshot(sentQuery, (snapshot) => {
-    window.clearTimeout(loadingTimer);
-    cache.sent = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-    render();
-  }, showError);
-
-  onSnapshot(receivedQuery, (snapshot) => {
-    window.clearTimeout(loadingTimer);
-    cache.received = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-    render();
-  }, showError);
+  await renderRecent(uid, data || []);
 }
 
 async function renderRecent(uid, messages) {
@@ -89,32 +78,41 @@ async function renderRecent(uid, messages) {
 
   const latestByPerson = new Map();
   const unreadByPerson = new Map();
-  messages
-    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-    .forEach((message) => {
-      const otherUid = message.senderId === uid ? message.receiverId : message.senderId;
-      if (!latestByPerson.has(otherUid)) {
-        latestByPerson.set(otherUid, message);
-      }
-      if (message.receiverId === uid && message.read !== true) {
-        unreadByPerson.set(otherUid, (unreadByPerson.get(otherUid) || 0) + 1);
-      }
-    });
+  messages.forEach((message) => {
+    const otherUid = message.sender_id === uid ? message.receiver_id : message.sender_id;
+    if (!latestByPerson.has(otherUid)) {
+      latestByPerson.set(otherUid, message);
+    }
+    if (message.receiver_id === uid && message.read !== true) {
+      unreadByPerson.set(otherUid, (unreadByPerson.get(otherUid) || 0) + 1);
+    }
+  });
 
-  const userSnapshots = await getDocs(collection(db, "users"));
-  const users = new Map(userSnapshots.docs.map((docSnap) => [docSnap.id, docSnap.data()]));
+  const { data: profiles, error } = await supabase
+    .from("profiles")
+    .select("*");
+
+  if (error) {
+    console.error("Unable to load profiles", error);
+    recentChats.innerHTML = emptyState("Profiles could not load", "Check your Supabase policies and refresh this page.");
+    renderIcons();
+    return;
+  }
+
+  const users = new Map((profiles || []).map((profile) => [profile.id, profile]));
 
   recentChats.innerHTML = [...latestByPerson.entries()]
     .map(([otherUid, message]) => {
       const person = users.get(otherUid);
       if (!person) return "";
       const unreadCount = unreadByPerson.get(otherUid) || 0;
-      const isUnread = unreadCount > 0 && message.receiverId === uid;
-      const previewPrefix = message.senderId === uid ? "You: " : "";
+      const isUnread = unreadCount > 0 && message.receiver_id === uid;
+      const previewPrefix = message.sender_id === uid ? "You: " : "";
+      const previewText = message.text || (message.type === "image" ? "Photo" : message.type === "voice" ? "Voice note" : "Media");
       const chatUrl = `chat.html?uid=${encodeURIComponent(otherUid)}`;
       return `
         <a class="chat-preview ${isUnread ? "unread" : ""}" href="${chatUrl}" aria-label="Open chat with ${escapeHtml(person.fullname)}">
-          <div class="avatar">${initials(person.fullname)}</div>
+          ${avatarHtml(person)}
           <div>
             <div class="chat-preview-title">
               <strong>${escapeHtml(person.fullname)}</strong>
@@ -122,11 +120,11 @@ async function renderRecent(uid, messages) {
             </div>
             <p class="latest-message">
               <i class="fa-solid ${isUnread ? "fa-circle" : "fa-check"}"></i>
-              <span>${escapeHtml(previewPrefix)}</span>${escapeHtml(message.text)}
+              <span>${escapeHtml(previewPrefix)}</span>${escapeHtml(previewText)}
             </p>
           </div>
           <span class="btn btn-ghost chat-preview-time">
-            <i class="fa-solid fa-comment-dots"></i>${formatTime(message.createdAt)}
+            <i class="fa-solid fa-comment-dots"></i>${formatTime(message.created_at)}
           </span>
         </a>
       `;

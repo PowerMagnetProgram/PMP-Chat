@@ -35,13 +35,40 @@
       </header>
 
       <section class="profile-card" aria-live="polite">
-        <div class="avatar xl" id="profileAvatar">P</div>
-        <div class="profile-copy">
-          <h2 id="profileName">Loading...</h2>
-          <p id="profileEmail" class="muted">Loading...</p>
-          <p id="profileBio">Loading profile...</p>
+        <div class="profile-hero">
+          <div class="profile-avatar-wrap">
+            <div class="avatar xl" id="profileAvatar">P</div>
+            <span class="profile-status"><i class="fa-solid fa-circle"></i> Online</span>
+          </div>
+          <div class="profile-copy">
+            <p class="eyebrow">Your Account</p>
+            <h2 id="profileName">Loading...</h2>
+            <p id="profileEmail" class="muted">Loading...</p>
+            <p id="profileBio">Loading profile...</p>
+          </div>
         </div>
-        <button id="editProfileButton" class="btn btn-primary" type="button"><i class="fa-solid fa-pen-to-square"></i>Edit profile</button>
+        <div class="profile-actions">
+          <button id="editProfileButton" class="btn btn-primary" type="button"><i class="fa-solid fa-pen-to-square"></i>Edit profile</button>
+          <button id="enableNotificationsButton" class="btn btn-ghost" type="button"><i class="fa-solid fa-bell"></i>Enable notifications</button>
+        </div>
+      </section>
+
+      <section class="profile-insights" aria-label="Profile insights">
+        <article>
+          <i class="fa-solid fa-user-check"></i>
+          <span>Status</span>
+          <strong>Active</strong>
+        </article>
+        <article>
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Auth</span>
+          <strong>Supabase</strong>
+        </article>
+        <article>
+          <i class="fa-solid fa-message"></i>
+          <span>Messages</span>
+          <strong id="profileMessageCount">0</strong>
+        </article>
       </section>
 
       <form id="profileForm" class="edit-panel hidden">
@@ -56,6 +83,13 @@
         <div class="input-icon textarea-icon">
           <i class="fa-solid fa-circle-info"></i>
           <textarea id="bio" name="bio" rows="4" maxlength="180" required></textarea>
+        </div>
+
+        <label for="profilePhoto">Profile picture</label>
+        <div class="file-picker">
+          <i class="fa-solid fa-image"></i>
+          <input id="profilePhoto" name="profilePhoto" type="file" accept="image/*">
+          <span>Choose an image</span>
         </div>
 
         <div class="button-row">

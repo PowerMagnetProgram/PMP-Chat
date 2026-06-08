@@ -1,15 +1,12 @@
-import { auth, db } from "./firebase.js";
+import { supabase } from "./supabase.js";
 import {
-  collection,
-  onSnapshot,
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import {
+  avatarHtml,
   emptyState,
   escapeHtml,
   getUserProfile,
-  initials,
   listenForAuth,
   renderIcons,
+  renderAvatar,
   setupLogoutButtons,
 } from "./guard.js";
 
@@ -18,7 +15,10 @@ const searchInput = document.querySelector("#searchInput");
 const mobileHeaderAvatar = document.querySelector("#mobileHeaderAvatar");
 const mobileHeaderName = document.querySelector("#mobileHeaderName");
 const mobileHeaderEmail = document.querySelector("#mobileHeaderEmail");
+const totalPeople = document.querySelector("#totalPeople");
+const onlinePeople = document.querySelector("#onlinePeople");
 let allUsers = [];
+let currentUserId = "";
 
 setupLogoutButtons();
 renderIcons();
@@ -27,34 +27,36 @@ listenForAuth({
   requireAuth: true,
   async onReady(user, guardError) {
     if (guardError) {
-      peopleList.innerHTML = emptyState("Unable to load people", "Check that your Firestore rules are published and refresh the page.");
+      console.warn("People page continuing after auth guard warning", guardError);
+    }
+
+    if (!user) {
+      peopleList.innerHTML = emptyState("Unable to load people", "Please login again to see the directory.");
       renderIcons();
       return;
     }
 
-    const profile = await getUserProfile(user.uid);
-    mobileHeaderAvatar.textContent = initials(profile?.fullname || user.email || "User");
-    mobileHeaderName.textContent = profile?.fullname || "PulseChat";
-    mobileHeaderEmail.textContent = profile?.email || user.email || "Online";
+    currentUserId = user.id;
+    let profile = null;
+    try {
+      profile = await getUserProfile(user.id);
+    } catch (error) {
+      console.warn("Current profile could not be loaded, using auth user fallback", error);
+    }
 
-    const loadingTimer = window.setTimeout(() => {
-      peopleList.innerHTML = emptyState("Still loading people", "Refresh the page. If this stays here, check the browser console for a Firestore permission error.");
-      renderIcons();
-    }, 8000);
+    if (mobileHeaderAvatar) renderAvatar(mobileHeaderAvatar, profile || user);
+    if (mobileHeaderName) mobileHeaderName.textContent = profile?.fullname || "PulseChat";
+    if (mobileHeaderEmail) mobileHeaderEmail.textContent = profile?.email || user.email || "Online";
 
-    onSnapshot(collection(db, "users"), (snapshot) => {
-      window.clearTimeout(loadingTimer);
-      allUsers = snapshot.docs
-        .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
-        .filter((person) => person.uid && person.uid !== user.uid)
-        .sort((first, second) => (first.fullname || "").localeCompare(second.fullname || ""));
-      renderUsers(allUsers);
-    }, (error) => {
-      window.clearTimeout(loadingTimer);
-      console.error(error);
-      peopleList.innerHTML = emptyState("Unable to load people", "Check your Firebase config and Firestore rules.");
-      renderIcons();
-    });
+    await loadUsers();
+    supabase
+      .channel("people-profiles")
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "profiles",
+      }, loadUsers)
+      .subscribe();
   },
 });
 
@@ -69,6 +71,34 @@ searchInput?.addEventListener("input", () => {
   renderUsers(filtered);
 });
 
+async function loadUsers() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("fullname", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    peopleList.innerHTML = emptyState("Unable to load people", "Check your Supabase config and row-level security policies.");
+    renderIcons();
+    return;
+  }
+
+  allUsers = data || [];
+  updatePeopleSummary(allUsers);
+  renderUsers(allUsers);
+}
+
+function updatePeopleSummary(users) {
+  if (totalPeople) totalPeople.textContent = users.length.toString();
+  if (onlinePeople) {
+    onlinePeople.textContent = users
+      .filter((user) => user.online)
+      .length
+      .toString();
+  }
+}
+
 function renderUsers(users) {
   if (!users.length) {
     peopleList.innerHTML = emptyState("No people found", "Try another search or invite someone to sign up.");
@@ -77,11 +107,11 @@ function renderUsers(users) {
   }
 
   peopleList.innerHTML = users.map((user) => `
-    <article class="user-card">
+    <article class="user-card ${user.id === currentUserId ? "self-card" : ""}">
       <div class="user-card-header">
-        <div class="avatar">${initials(user.fullname)}</div>
+        ${avatarHtml(user)}
         <div>
-          <strong>${escapeHtml(user.fullname)}</strong>
+          <strong>${escapeHtml(user.fullname)}${user.id === currentUserId ? " <span class=\"you-badge\">You</span>" : ""}</strong>
           <p>${escapeHtml(user.email)}</p>
         </div>
       </div>
@@ -90,9 +120,15 @@ function renderUsers(users) {
         <span class="status-pill ${user.online ? "online" : "offline"}">
           <i class="fa-solid ${user.online ? "fa-wifi" : "fa-circle-xmark"}"></i>${user.online ? "Online" : "Offline"}
         </span>
-        <a class="btn btn-primary" href="chat.html?uid=${encodeURIComponent(user.uid)}">
-          <i class="fa-solid fa-comment-dots"></i>Message
-        </a>
+        ${user.id === currentUserId ? `
+          <a class="btn btn-ghost" href="profile.html">
+            <i class="fa-solid fa-user-pen"></i>Profile
+          </a>
+        ` : `
+          <a class="btn btn-primary" href="chat.html?uid=${encodeURIComponent(user.id)}">
+            <i class="fa-solid fa-comment-dots"></i>Message
+          </a>
+        `}
       </div>
     </article>
   `).join("");

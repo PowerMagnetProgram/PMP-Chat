@@ -1,15 +1,15 @@
 # PulseChat
 
-A responsive realtime chat app built with HTML, CSS, vanilla JavaScript, Firebase Authentication, Cloud Firestore, and Firebase Hosting.
+A responsive realtime chat app built with HTML, CSS, vanilla JavaScript, Supabase Auth, Supabase Postgres, and Supabase Realtime.
 
-## Firebase Setup
+## Supabase Setup
 
-1. Create a Firebase project at `https://console.firebase.google.com`.
-2. Add a Web App and copy the Firebase config.
-3. Replace the placeholder values in `js/firebase.js`.
-4. Enable Authentication with the Email/Password provider.
-5. Create a Cloud Firestore database.
-6. Deploy the rules in `firestore.rules`.
+1. Create a Supabase project at `https://supabase.com/dashboard`.
+2. Open the SQL Editor and run `supabase-schema.sql`. Run it again after updates to add media columns, storage buckets, and policies.
+3. Go to Project Settings > API and copy your Project URL and anon public key.
+4. Replace the placeholders in `js/supabase.js`.
+5. In Authentication > Providers, make sure Email is enabled.
+6. In Database > Replication, confirm `profiles` and `messages` are enabled for Realtime.
 
 ## Local Run
 
@@ -21,17 +21,6 @@ npx serve .
 
 Then open the shown local URL in your browser.
 
-## Firestore Indexes
+## Deploy
 
-Firestore may prompt you to create composite indexes for message queries that combine `senderId`, `receiverId`, and `createdAt`. Click the generated Firebase console link if prompted.
-
-## Deploy To Firebase Hosting
-
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting firestore
-firebase deploy
-```
-
-Use the current folder as the hosting public directory and keep `firestore.rules` when prompted.
+Supabase provides the auth and database backend. Deploy this static frontend to Vercel, Netlify, GitHub Pages, Supabase Storage static hosting, or any other static hosting provider.
